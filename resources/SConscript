@@ -1,0 +1,14 @@
+# -*- python -*-
+
+#This file is for building platform-independent resources
+#to be bundled with the executables.
+
+env = Environment()
+
+def fill_file(target,source,env):
+    with open(str(target[0]),'w') as f:
+        f.write('Built {}'.format(str(target[0])))
+
+resources = env.Command('output_file.txt',[],fill_file)
+
+Return('resources')

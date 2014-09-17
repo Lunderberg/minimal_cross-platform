@@ -1,2 +1,7 @@
 *~
 .sconsign.dblite
+build
+linux
+win32
+win64
+resources/output_file.txt
