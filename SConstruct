@@ -4,10 +4,24 @@ import os
 
 # Define a recursive install builder, to be used later.
 def RecursiveInstall(env, target, src):
-    root_items = []
-    for src_list in src:
-        root_items.extend(src_list)
+    root_items = [src]
 
+    # Flatten list of sources
+    while True:
+        temp = []
+        extended = False
+        for src_list in root_items:
+            try:
+                temp.extend(src_list)
+                extended = True
+            except TypeError:
+                temp.append(src_list)
+        root_items = temp
+
+        if not extended:
+            break
+
+    # Recursively install everything inside the directory.
     for root_item in root_items:
         unsearched = [root_item]
         base_dir = os.path.split(str(root_item))[0]
@@ -29,12 +43,33 @@ env = Environment(tools=['default',
                          TOOL_RECURSIVE_INSTALL],
                   ENV=os.environ)
 
-env['CXXCOMSTR'] = 'Compiling object $TARGETS'
-env['CCCOMSTR'] = 'Compiling object $TARGETS'
-env['ARCOMSTR'] = 'Packing static library $TARGETS'
-env['RANLIBCOMSTR'] = 'Indexing static library $TARGETS'
-env['SHCXXCOMSTR'] = 'Compiling shared object $TARGETS'
-env['LINKCOMSTR'] = 'Linking $TARGETS'
+# More readable output
+if not ARGUMENTS.get('VERBOSE'):
+    env['CXXCOMSTR'] = 'Compiling object $TARGETS'
+    env['CCCOMSTR'] = 'Compiling object $TARGETS'
+    env['ARCOMSTR'] = 'Packing static library $TARGETS'
+    env['RANLIBCOMSTR'] = 'Indexing static library $TARGETS'
+    env['SHCXXCOMSTR'] = 'Compiling shared object $TARGETS'
+    env['LINKCOMSTR'] = 'Linking $TARGETS'
+
+
+# Command-line adjustments
+optimize = ARGUMENTS.get('OPTIMIZE')
+if not optimize:
+    optimize = 3
+if optimize!='0':
+    env.Append(CPPFLAGS=['-O{}'.format(optimize)])
+
+if ARGUMENTS.get('RELEASE'):
+    env.Append(CPPDEFINES=['NDEBUG'])
+    env.Append(CPPFLAGS=['-s'])
+else:
+    env.Append(CPPFLAGS=['-g'])
+
+if ARGUMENTS.get('PROFILE'):
+    env.Append(CPPFLAGS=['-pg','-g'])
+    env.Append(LINKFLAGS=['-pg'])
+
 
 win32 = env.Clone()
 win64 = env.Clone()
@@ -80,4 +115,3 @@ for env in [win32,win64,linux]:
     Clean('.',env['SYS'])
 
 Clean('.','build')
-
