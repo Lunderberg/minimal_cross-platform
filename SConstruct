@@ -2,6 +2,13 @@
 
 import os
 
+def iterable(t):
+    try:
+        iter(t)
+        return True
+    except TypeError:
+        return False
+
 # Define a recursive install builder, to be used later.
 def RecursiveInstall(env, target, src):
     root_items = [src]
@@ -11,10 +18,10 @@ def RecursiveInstall(env, target, src):
         temp = []
         extended = False
         for src_list in root_items:
-            try:
+            if iterable(t) and not isinstance(t,str):
                 temp.extend(src_list)
                 extended = True
-            except TypeError:
+            else:
                 temp.append(src_list)
         root_items = temp
 
