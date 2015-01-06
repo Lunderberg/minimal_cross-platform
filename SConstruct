@@ -18,7 +18,7 @@ def RecursiveInstall(env, target, src):
         temp = []
         extended = False
         for src_list in root_items:
-            if iterable(t) and not isinstance(t,str):
+            if iterable(src_list) and not isinstance(src_list,str):
                 temp.extend(src_list)
                 extended = True
             else:
