@@ -1,11 +1,7 @@
 #include <iostream>
-using std::cout;
-using std::endl;
 
-#include "subroutine.hh"
+#include "ProgramPath.hh"
 
 int main(){
-  cout << "Hello, World!" << endl;
-
-  subroutine();
+  std::cout << "Path: " << program_path() << std::endl;
 }
